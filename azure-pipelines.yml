@@ -11,18 +11,17 @@ pool:
 
 variables:
   artifactName: 'static-website'
+  storageAccountName: 'ststaticweb18429'
+  resourceGroupName: 'rg-static-website-cicd'
 
 stages:
 - stage: Build
   displayName: Build Stage
   jobs:
   - job: BuildJob
-    displayName: Build Static Website
     steps:
     - checkout: self
-
     - script: |
-        echo "Building static website..."
         mkdir build
         cp index.html build/
         cp -r css build/
@@ -35,12 +34,9 @@ stages:
   dependsOn: Build
   jobs:
   - job: TestJob
-    displayName: Test Website Files
     steps:
     - checkout: self
-
     - script: |
-        echo "Validating required files..."
         test -f index.html
         test -d css
         test -d js
@@ -54,10 +50,8 @@ stages:
   dependsOn: Test
   jobs:
   - job: PublishJob
-    displayName: Publish Website Artifact
     steps:
     - checkout: self
-
     - script: |
         mkdir build
         cp index.html build/
@@ -66,8 +60,32 @@ stages:
       displayName: "Prepare artifact folder"
 
     - task: PublishBuildArtifacts@1
-      displayName: "Publish static website artifact"
       inputs:
         PathtoPublish: '$(Build.SourcesDirectory)/build'
         ArtifactName: '$(artifactName)'
         publishLocation: 'Container'
+
+- stage: Deploy
+  displayName: Deploy Stage
+  dependsOn: Publish
+  jobs:
+  - job: DeployJob
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: '$(artifactName)'
+        downloadPath: '$(Pipeline.Workspace)'
+
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'azure-static-web-connection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az storage blob upload-batch \
+            --account-name $(storageAccountName) \
+            --source "$(Pipeline.Workspace)/$(artifactName)" \
+            --destination '$web' \
+            --overwrite
