@@ -1,0 +1,43 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Build_Test
+  displayName: Build and Test Static Website
+  jobs:
+  - job: ValidateWebsite
+    displayName: Validate Static Website Files
+    steps:
+    - checkout: self
+
+    - script: |
+        echo "Listing project files..."
+        ls -la
+      displayName: "List files"
+
+    - script: |
+        echo "Checking required files..."
+
+        test -f index.html
+        test -d css
+        test -d js
+        test -f css/style.css
+        test -f js/app.js
+
+        echo "Validation passed."
+      displayName: "Validate website files"
+
+    - task: PublishBuildArtifacts@1
+      displayName: "Publish website artifact"
+      inputs:
+        PathtoPublish: '$(Build.SourcesDirectory)'
+        ArtifactName: 'static-website'
+        publishLocation: 'Container'
