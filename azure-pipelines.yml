@@ -9,35 +9,65 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  artifactName: 'static-website'
+
 stages:
-- stage: Build_Test
-  displayName: Build and Test Static Website
+- stage: Build
+  displayName: Build Stage
   jobs:
-  - job: ValidateWebsite
-    displayName: Validate Static Website Files
+  - job: BuildJob
+    displayName: Build Static Website
     steps:
     - checkout: self
 
     - script: |
-        echo "Listing project files..."
-        ls -la
-      displayName: "List files"
+        echo "Building static website..."
+        mkdir build
+        cp index.html build/
+        cp -r css build/
+        cp -r js build/
+        ls -la build
+      displayName: "Prepare build folder"
+
+- stage: Test
+  displayName: Test Stage
+  dependsOn: Build
+  jobs:
+  - job: TestJob
+    displayName: Test Website Files
+    steps:
+    - checkout: self
 
     - script: |
-        echo "Checking required files..."
-
+        echo "Validating required files..."
         test -f index.html
         test -d css
         test -d js
         test -f css/style.css
         test -f js/app.js
-
-        echo "Validation passed."
+        echo "All validation tests passed."
       displayName: "Validate website files"
 
+- stage: Publish
+  displayName: Publish Stage
+  dependsOn: Test
+  jobs:
+  - job: PublishJob
+    displayName: Publish Website Artifact
+    steps:
+    - checkout: self
+
+    - script: |
+        mkdir build
+        cp index.html build/
+        cp -r css build/
+        cp -r js build/
+      displayName: "Prepare artifact folder"
+
     - task: PublishBuildArtifacts@1
-      displayName: "Publish website artifact"
+      displayName: "Publish static website artifact"
       inputs:
-        PathtoPublish: '$(Build.SourcesDirectory)'
-        ArtifactName: 'static-website'
+        PathtoPublish: '$(Build.SourcesDirectory)/build'
+        ArtifactName: '$(artifactName)'
         publishLocation: 'Container'
