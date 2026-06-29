@@ -1,6 +1,3 @@
-const statusCard = document.getElementById('deployment-status');
-const showInfoBtn = document.getElementById('show-info-btn');
-
 const pipelineSteps = [
     { label: 'Build', detail: 'Source files are collected and packaged into a build folder.' },
     { label: 'Test', detail: 'Basic validation ensures the HTML, CSS, and JS files exist.' },
@@ -8,7 +5,7 @@ const pipelineSteps = [
     { label: 'Deploy', detail: 'Azure CLI uploads static files to the storage account.' }
 ];
 
-function renderDeploymentStatus() {
+function renderDeploymentStatus(statusCard) {
     const now = new Date();
     const statusMessage = `Last checked: ${now.toLocaleString()}. Deployment pipeline is healthy.`;
     const stepsHtml = pipelineSteps.map(step => `
@@ -22,8 +19,20 @@ function renderDeploymentStatus() {
     `;
 }
 
-if (showInfoBtn && statusCard) {
-    showInfoBtn.addEventListener('click', renderDeploymentStatus);
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const statusCard = document.getElementById('deployment-status');
+    const showInfoBtn = document.getElementById('show-info-btn');
 
-console.log('Static website loaded successfully');
+    if (!showInfoBtn) {
+        console.error('Show deployment status button was not found.');
+        return;
+    }
+
+    if (!statusCard) {
+        console.error('Deployment status card was not found.');
+        return;
+    }
+
+    showInfoBtn.addEventListener('click', () => renderDeploymentStatus(statusCard));
+    console.log('Static website loaded successfully');
+});
