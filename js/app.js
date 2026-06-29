@@ -17,10 +17,13 @@ const pipelineSteps = [
     }
 ];
 
-function renderDeploymentStatus(statusCard, statusMessage, stepsHtml) {
+function renderDeploymentStatus(statusCard, statusMessage, stepsHtml, environment) {
     statusCard.innerHTML = `
+        <div class="status-meta">
+            <span class="status-badge">${environment}</span>
+            <p>${statusMessage}</p>
+        </div>
         <h2>Deployment status</h2>
-        <p>${statusMessage}</p>
         <ul>${stepsHtml}</ul>
     `;
 }
@@ -77,7 +80,8 @@ function simulateDeploymentStatus(statusCard, button, environment) {
 document.addEventListener('DOMContentLoaded', () => {
     const statusCard = document.getElementById('deployment-status');
     const showInfoBtn = document.getElementById('show-info-btn');
-    const environmentSelect = document.getElementById('environment-select');
+    const envTabs = Array.from(document.querySelectorAll('.env-tab'));
+    let selectedEnvironment = 'Production';
 
     if (!showInfoBtn) {
         console.error('Show deployment status button was not found.');
@@ -89,11 +93,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    if (!environmentSelect) {
-        console.error('Environment selector was not found.');
+    if (envTabs.length === 0) {
+        console.error('Environment tabs were not found.');
         return;
     }
 
-    showInfoBtn.addEventListener('click', () => simulateDeploymentStatus(statusCard, showInfoBtn, environmentSelect.value));
+    envTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            selectedEnvironment = tab.dataset.environment;
+            envTabs.forEach(item => item.classList.toggle('active', item === tab));
+        });
+    });
+
+    showInfoBtn.addEventListener('click', () => simulateDeploymentStatus(statusCard, showInfoBtn, selectedEnvironment));
     console.log('Static website loaded successfully');
 });

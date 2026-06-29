@@ -11,15 +11,14 @@
         <div class="container">
             <h1>Satic Website CI/CD</h1>
             <p>Learn how Azure DevOps automates build, test, and deployment for a static website.</p>
-            <div class="environment-selector">
-                <label for="environment-select">Environment:</label>
-                <select id="environment-select">
-                    <option value="Production">Production</option>
-                    <option value="Staging">Staging</option>
-                    <option value="Development">Development</option>
-                </select>
+            <div class="hero-controls">
+                <div class="environment-tabs" role="tablist" aria-label="Choose environment">
+                    <button type="button" class="env-tab active" data-environment="Production">Production</button>
+                    <button type="button" class="env-tab" data-environment="Staging">Staging</button>
+                    <button type="button" class="env-tab" data-environment="Development">Development</button>
+                </div>
+                <button type="button" id="show-info-btn">Show deployment status</button>
             </div>
-            <button type="button" id="show-info-btn">Show deployment status</button>
         </div>
     </header>
 
