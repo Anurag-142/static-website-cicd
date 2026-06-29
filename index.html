@@ -7,8 +7,43 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>Welcome to My Azure DevOps CI/CD Project</h1>
-    <p>This website will be deployed using Azure DevOps Pipelines.</p>
+    <header class="hero">
+        <div class="container">
+            <h1>Static Website CI/CD</h1>
+            <p>Learn how Azure DevOps automates build, test, and deployment for a static website.</p>
+            <button id="show-info-btn">Show deployment status</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="overview">
+            <h2>About this project</h2>
+            <p>This website is built as a simple static project and deployed using Azure DevOps pipeline automation.</p>
+        </section>
+
+        <section class="features">
+            <h2>Project features</h2>
+            <ul>
+                <li>Automated CI/CD pipeline with Azure DevOps</li>
+                <li>Static content hosted in Azure Storage or any static host</li>
+                <li>Responsive design and lightweight assets</li>
+            </ul>
+        </section>
+
+        <section class="details">
+            <h2>How it works</h2>
+            <p>The pipeline builds the site, validates the files, publishes artifacts, and deploys the static content to Azure Storage.</p>
+        </section>
+
+        <section class="status-card" id="deployment-status">
+            <h2>Deployment status</h2>
+            <p>Click the button above to view a simulated deployment check powered by JavaScript.</p>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Made with Azure DevOps and static web best practices.</p>
+    </footer>
 
     <script src="js/app.js"></script>
 </body>

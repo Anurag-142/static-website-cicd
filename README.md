@@ -27,4 +27,10 @@ The pipeline performs the following:
 - HTML validation
 - CSS linting
 - JavaScript linting
-- Continuous Deployment to Azure
+- Continuous Deployment to Azures
+- Add a staging environment for review deployments
+- Implement accessibility testing in CI
+- Use versioned artifact storage for rollback support
+- Add a staging environment for review deployments
+- Implement accessibility testing in CI
+- Use versioned artifact storage for rollback support
