@@ -27,7 +27,7 @@ The Azure DevOps pipeline performs the following steps:
 ## What’s Included
 
 - Simple static website layout with responsive design
-- JavaScript-powered deployment status simulation
+- JavaScript-powered deployment status simulation with progress steps
 - Azure DevOps YAML pipeline for build/test/publish/deploy
 - Modern CSS styling with reusable feature cards
 
