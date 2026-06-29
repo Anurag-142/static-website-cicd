@@ -78,6 +78,21 @@ button:hover {
     background-color: #e69a00;
 }
 
+.secondary-button {
+    background-color: rgba(255, 255, 255, 0.24);
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    color: #ffffff;
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.secondary-button:hover {
+    background-color: rgba(255, 255, 255, 0.44);
+}
+
 main {
     padding: 32px 0;
 }
@@ -152,12 +167,40 @@ li {
     letter-spacing: 0.04em;
 }
 
-.status-card ul {
+..status-card ul {
     margin: 16px 0 0 20px;
 }
 
 .status-card li {
     margin-bottom: 8px;
+}
+
+.history-panel {
+    margin-top: 24px;
+    padding: 18px 18px 14px;
+    background-color: #f3f8ff;
+    border: 1px solid #d7e4f2;
+    border-radius: 12px;
+}
+
+.history-panel h3 {
+    font-size: 1.1rem;
+    margin: 0 0 10px;
+}
+
+.history-panel p {
+    margin: 0;
+}
+
+.history-panel ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.history-item {
+    color: #1b2838;
+    margin-bottom: 10px;
 }
 
 .spinner {

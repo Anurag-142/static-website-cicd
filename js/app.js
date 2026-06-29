@@ -17,14 +17,36 @@ const pipelineSteps = [
     }
 ];
 
-function renderDeploymentStatus(statusCard, statusMessage, stepsHtml, environment) {
+function loadDeploymentHistory() {
+    try {
+        const saved = localStorage.getItem('deploymentHistory');
+        return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+        console.warn('Failed to load deployment history:', error);
+        return [];
+    }
+}
+
+function saveDeploymentHistory(history) {
+    try {
+        localStorage.setItem('deploymentHistory', JSON.stringify(history));
+    } catch (error) {
+        console.warn('Failed to save deployment history:', error);
+    }
+}
+
+const deploymentHistory = loadDeploymentHistory();
+
+function renderDeploymentStatus(statusCard, statusMessage, stepsHtml, environment, historyHtml) {
     statusCard.innerHTML = `
         <div class="status-meta">
             <span class="status-badge">${environment}</span>
             <p>${statusMessage}</p>
+            <button type="button" id="clear-history-btn" class="secondary-button">Clear history</button>
         </div>
         <h2>Deployment status</h2>
         <ul>${stepsHtml}</ul>
+        ${historyHtml}
     `;
 }
 
@@ -32,6 +54,25 @@ function createStatusList(steps, environment) {
     return steps.map(step => `
         <li><strong>${step.label}:</strong> ${step.detail(environment)}</li>
     `).join('');
+}
+
+function renderHistory(history) {
+    if (!history.length) {
+        return `<div class="history-panel"><h3>Deployment history</h3><p>No checks run yet.</p></div>`;
+    }
+
+    return `
+        <div class="history-panel">
+            <h3>Deployment history</h3>
+            <ul>
+                ${history.map(entry => `
+                    <li class="history-item">
+                        <strong>${entry.environment}</strong> • ${entry.status} • ${entry.timestamp}
+                    </li>
+                `).join('')}
+            </ul>
+        </div>
+    `;
 }
 
 function simulateDeploymentStatus(statusCard, button, environment) {
@@ -56,9 +97,17 @@ function simulateDeploymentStatus(statusCard, button, environment) {
         if (index >= progressSteps.length) {
             clearInterval(interval);
             const now = new Date();
-            const statusMessage = `Last checked: ${now.toLocaleString()}. ${environment} deployment pipeline is healthy.`;
+            const timestamp = now.toLocaleString();
+            const statusMessage = `Last checked: ${timestamp}. ${environment} deployment pipeline is healthy.`;
             const stepsHtml = createStatusList(pipelineSteps, environment);
-            renderDeploymentStatus(statusCard, statusMessage, stepsHtml);
+            deploymentHistory.unshift({
+                environment,
+                status: 'Success',
+                timestamp
+            });
+            saveDeploymentHistory(deploymentHistory);
+            const historyHtml = renderHistory(deploymentHistory);
+            renderDeploymentStatus(statusCard, statusMessage, stepsHtml, environment, historyHtml);
             button.disabled = false;
             button.textContent = 'Refresh deployment status';
             return;
@@ -106,5 +155,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     showInfoBtn.addEventListener('click', () => simulateDeploymentStatus(statusCard, showInfoBtn, selectedEnvironment));
+
+    statusCard.addEventListener('click', event => {
+        if (event.target.id !== 'clear-history-btn') {
+            return;
+        }
+
+        deploymentHistory.length = 0;
+        saveDeploymentHistory(deploymentHistory);
+        const initialMessage = 'Deployment history cleared. Run a status check to repopulate the log.';
+        const stepsHtml = createStatusList(pipelineSteps, selectedEnvironment);
+        const historyHtml = renderHistory(deploymentHistory);
+        renderDeploymentStatus(statusCard, initialMessage, stepsHtml, selectedEnvironment, historyHtml);
+    });
+
     console.log('Static website loaded successfully');
 });

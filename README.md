@@ -27,8 +27,8 @@ The Azure DevOps pipeline performs the following steps:
 ## What’s Included
 
 - Simple static website layout with responsive design
-- JavaScript-powered deployment status simulation with progress steps and environment selection
-- Azure DevOps YAML pipeline for build/test/publish/deploy
+- JavaScript-powered deployment status simulation with progress steps, environment selection, and persistent deployment history
+- Azure DevOps YAML pipeline for build/test/publish/deploy with production/staging environment support
 - Modern CSS styling with reusable feature cards
 
 ## Future Enhancements
@@ -37,8 +37,7 @@ The Azure DevOps pipeline performs the following steps:
 - CSS linting
 - JavaScript linting
 - Continuous deployment to Azure Storage
-- Add a staging environment for review deployments
 - Implement accessibility testing in CI
 - Use versioned artifact storage for rollback support
-- Add real environment variable support for deployment settings
+- Add review deployment approvals and gating
 
