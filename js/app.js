@@ -1,8 +1,20 @@
 const pipelineSteps = [
-    { label: 'Build', detail: 'Source files are collected and packaged into a build folder.' },
-    { label: 'Test', detail: 'Basic validation ensures the HTML, CSS, and JS files exist.' },
-    { label: 'Publish', detail: 'Build artifacts are published and stored for deployment.' },
-    { label: 'Deploy', detail: 'Azure CLI uploads static files to the storage account.' }
+    {
+        label: 'Build',
+        detail: environment => `Collecting files and preparing build artifacts for the ${environment} environment.`
+    },
+    {
+        label: 'Validate',
+        detail: environment => `Checking required HTML, CSS, and JS files for the ${environment} environment.`
+    },
+    {
+        label: 'Publish',
+        detail: environment => `Uploading artifact package to pipeline storage for ${environment}.`
+    },
+    {
+        label: 'Deploy',
+        detail: environment => `Publishing static files to Azure Storage for ${environment}.`
+    }
 ];
 
 function renderDeploymentStatus(statusCard, statusMessage, stepsHtml) {
@@ -13,27 +25,27 @@ function renderDeploymentStatus(statusCard, statusMessage, stepsHtml) {
     `;
 }
 
-function createStatusList(steps) {
+function createStatusList(steps, environment) {
     return steps.map(step => `
-        <li><strong>${step.label}:</strong> ${step.detail}</li>
+        <li><strong>${step.label}:</strong> ${step.detail(environment)}</li>
     `).join('');
 }
 
-function simulateDeploymentStatus(statusCard, button) {
+function simulateDeploymentStatus(statusCard, button, environment) {
     const progressSteps = [
-        { label: 'Build', detail: 'Collecting files and preparing build artifacts...' },
-        { label: 'Validate', detail: 'Checking required HTML, CSS, and JS files...' },
-        { label: 'Publish', detail: 'Uploading artifact package to pipeline storage...' },
-        { label: 'Deploy', detail: 'Publishing static files to Azure Storage...' }
+        { label: 'Build', detail: `Collecting files and preparing build artifacts for ${environment}...` },
+        { label: 'Validate', detail: `Checking required HTML, CSS, and JS files for ${environment}...` },
+        { label: 'Publish', detail: `Uploading artifact package to pipeline storage for ${environment}...` },
+        { label: 'Deploy', detail: `Publishing static files to Azure Storage for ${environment}...` }
     ];
 
     button.disabled = true;
-    button.textContent = 'Checking...';
+    button.textContent = `Checking ${environment}...`;
 
     let index = 0;
     statusCard.innerHTML = `
         <h2>Deployment status</h2>
-        <p>Starting deployment status check...</p>
+        <p>Starting deployment status check for ${environment}...</p>
         <div class="spinner"></div>
     `;
 
@@ -41,8 +53,8 @@ function simulateDeploymentStatus(statusCard, button) {
         if (index >= progressSteps.length) {
             clearInterval(interval);
             const now = new Date();
-            const statusMessage = `Last checked: ${now.toLocaleString()}. Deployment pipeline is healthy.`;
-            const stepsHtml = createStatusList(pipelineSteps);
+            const statusMessage = `Last checked: ${now.toLocaleString()}. ${environment} deployment pipeline is healthy.`;
+            const stepsHtml = createStatusList(pipelineSteps, environment);
             renderDeploymentStatus(statusCard, statusMessage, stepsHtml);
             button.disabled = false;
             button.textContent = 'Refresh deployment status';
@@ -65,6 +77,7 @@ function simulateDeploymentStatus(statusCard, button) {
 document.addEventListener('DOMContentLoaded', () => {
     const statusCard = document.getElementById('deployment-status');
     const showInfoBtn = document.getElementById('show-info-btn');
+    const environmentSelect = document.getElementById('environment-select');
 
     if (!showInfoBtn) {
         console.error('Show deployment status button was not found.');
@@ -76,6 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    showInfoBtn.addEventListener('click', () => simulateDeploymentStatus(statusCard, showInfoBtn));
+    if (!environmentSelect) {
+        console.error('Environment selector was not found.');
+        return;
+    }
+
+    showInfoBtn.addEventListener('click', () => simulateDeploymentStatus(statusCard, showInfoBtn, environmentSelect.value));
     console.log('Static website loaded successfully');
 });

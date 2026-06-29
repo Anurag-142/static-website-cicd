@@ -138,6 +138,25 @@ button:hover {
     transform: translateY(-1px);
 }
 
+.environment-selector {
+    align-items: center;
+    display: inline-flex;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.environment-selector label {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.environment-selector select {
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    padding: 10px 12px;
+}
+
 .footer {
     background-color: #ffffff;
     border-top: 1px solid #d2d8df;
