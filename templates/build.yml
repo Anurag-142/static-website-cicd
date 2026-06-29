@@ -1,0 +1,20 @@
+parameters:
+  artifactName: 'static-website'
+
+stages:
+- stage: Build
+  displayName: Build Stage
+  jobs:
+  - job: BuildJob
+    displayName: Build Job
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    - script: |
+        mkdir -p build
+        cp index.html build/
+        cp -r css build/
+        cp -r js build/
+        ls -la build
+      displayName: "Prepare build folder"

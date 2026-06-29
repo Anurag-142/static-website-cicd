@@ -1,0 +1,24 @@
+parameters:
+  artifactName: 'static-website'
+
+stages:
+- stage: Publish
+  displayName: Publish Stage
+  dependsOn: Validate
+  jobs:
+  - job: PublishJob
+    displayName: Publish Job
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    - script: |
+        mkdir -p build
+        cp index.html build/
+        cp -r css build/
+        cp -r js build/
+      displayName: "Prepare artifact folder"
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: 'build'
+        artifact: '${{ parameters.artifactName }}'

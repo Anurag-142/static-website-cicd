@@ -1,0 +1,49 @@
+parameters:
+  artifactName: 'static-website'
+  azureServiceConnection: 'azure-static-web-connection'
+  targetEnvironment: 'Production'
+  productionStorageAccountName: 'ststaticweb18429'
+  stagingStorageAccountName: 'ststaticweb18429-staging'
+  developmentStorageAccountName: 'ststaticweb18429-dev'
+
+stages:
+- stage: Deploy
+  displayName: Deploy Stage
+  dependsOn: Publish
+  jobs:
+  - deployment: DeployJob
+    displayName: Deploy to ${{ parameters.targetEnvironment }}
+    environment: '${{ parameters.targetEnvironment }}'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: '${{ parameters.artifactName }}'
+              path: '$(Pipeline.Workspace)'
+              patterns: '**/*'
+
+          - script: |
+              echo "Selecting storage account for environment: ${{ parameters.targetEnvironment }}"
+              if [ "${{ parameters.targetEnvironment }}" = "Production" ]; then
+                echo "##vso[task.setvariable variable=storageAccountName]${{ parameters.productionStorageAccountName }}"
+              elif [ "${{ parameters.targetEnvironment }}" = "Staging" ]; then
+                echo "##vso[task.setvariable variable=storageAccountName]${{ parameters.stagingStorageAccountName }}"
+              else
+                echo "##vso[task.setvariable variable=storageAccountName]${{ parameters.developmentStorageAccountName }}"
+              fi
+            displayName: "Select storage account by target environment"
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: '${{ parameters.azureServiceConnection }}'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az storage blob upload-batch \
+                  --account-name $(storageAccountName) \
+                  --source "$(Pipeline.Workspace)/${{ parameters.artifactName }}" \
+                  --destination '$web' \
+                  --overwrite
+                echo "Deployment complete."

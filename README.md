@@ -49,14 +49,21 @@ This project is a static website served with a simple frontend and a CI/CD pipel
 
 ## Variables
 
-This pipeline uses the following variables:
+This pipeline uses a Variable Group named `StaticWebsite-Dev` that should contain the environment-specific deployment values.
+
+Common variables in the group include:
+
+- `StorageAccount`
+- `ResourceGroup`
+- `Environment`
+- `productionStorageAccountName`
+- `stagingStorageAccountName`
+- `developmentStorageAccountName`
+- `resourceGroupName`
+
+Pipeline-specific variables in `azure-pipelines.yml` include:
 
 - `artifactName`: name of the published pipeline artifact
-- `storageAccountName`: target Azure Storage account for deployment
-- `productionStorageAccountName`: production storage account name
-- `stagingStorageAccountName`: staging storage account name
-- `developmentStorageAccountName`: development storage account name
-- `resourceGroupName`: Azure resource group name
 - `azureServiceConnection`: Azure DevOps service connection name
 - `targetEnvironment`: target deployment environment (`Production` by default)
 

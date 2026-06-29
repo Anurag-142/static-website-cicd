@@ -1,0 +1,21 @@
+stages:
+- stage: Validate
+  displayName: Validate Stage
+  dependsOn: Build
+  jobs:
+  - job: ValidateJob
+    displayName: Validate Job
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    - script: |
+        npm install -g html-validate jshint csslint
+        html-validate index.html
+        csslint css/style.css
+        jshint js/app.js
+        test -f index.html
+        test -d css
+        test -f css/style.css
+        test -f js/app.js
+      displayName: "Validate HTML, CSS, JavaScript, and file structure"

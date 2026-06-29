@@ -3,89 +3,42 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+name: static-web-$(Date:yyyyMMdd)$(Rev:.r)
+
 trigger:
+- main
+
+pr:
 - main
 
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  artifactName: 'static-website'
-  storageAccountName: 'ststaticweb18429'
-  resourceGroupName: 'rg-static-website-cicd'
+- group: StaticWebsite-Dev
+- name: artifactName
+  value: static-website
+- name: azureServiceConnection
+  value: azure-static-web-connection
+- name: targetEnvironment
+  value: Production
 
 stages:
-- stage: Build
-  displayName: Build Stage
-  jobs:
-  - job: BuildJob
-    steps:
-    - checkout: self
-    - script: |
-        mkdir build
-        cp index.html build/
-        cp -r css build/
-        cp -r js build/
-        ls -la build
-      displayName: "Prepare build folder"
+- template: templates/build.yml
+  parameters:
+    artifactName: ${{ variables.artifactName }}
 
-- stage: Test
-  displayName: Test Stage
-  dependsOn: Build
-  jobs:
-  - job: TestJob
-    steps:
-    - checkout: self
-    - script: |
-        test -f index.html
-        test -d css
-        test -d js
-        test -f css/style.css
-        test -f js/app.js
-        echo "All validation tests passed."
-      displayName: "Validate website files"
+- template: templates/test.yml
 
-- stage: Publish
-  displayName: Publish Stage
-  dependsOn: Test
-  jobs:
-  - job: PublishJob
-    steps:
-    - checkout: self
-    - script: |
-        mkdir build
-        cp index.html build/
-        cp -r css build/
-        cp -r js build/
-      displayName: "Prepare artifact folder"
+- template: templates/publish.yml
+  parameters:
+    artifactName: ${{ variables.artifactName }}
 
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: '$(Build.SourcesDirectory)/build'
-        ArtifactName: '$(artifactName)'
-        publishLocation: 'Container'
-
-- stage: Deploy
-  displayName: Deploy Stage
-  dependsOn: Publish
-  jobs:
-  - job: DeployJob
-    steps:
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: '$(artifactName)'
-        downloadPath: '$(Pipeline.Workspace)'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'azure-static-web-connection'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          az storage blob upload-batch \
-            --account-name $(storageAccountName) \
-            --source "$(Pipeline.Workspace)/$(artifactName)" \
-            --destination '$web' \
-            --overwrite
+- template: templates/deploy.yml
+  parameters:
+    artifactName: ${{ variables.artifactName }}
+    azureServiceConnection: ${{ variables.azureServiceConnection }}
+    targetEnvironment: ${{ variables.targetEnvironment }}
+    productionStorageAccountName: ${{ variables.productionStorageAccountName }}
+    stagingStorageAccountName: ${{ variables.stagingStorageAccountName }}
+    developmentStorageAccountName: ${{ variables.developmentStorageAccountName }}
